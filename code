@@ -1,0 +1,6 @@
+import pydicom
+import matplotlib.pyplot as plt
+filename = r"C:\Users\Sonny\Desktop\materials\Red_2\CT_767_80.dcm"
+dcm = pydicom.read_file(filename)
+print(dcm)
+plt.imshow(dcm.pixel_array)
