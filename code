@@ -1,6 +1,7 @@
 %matplotlib inline
 
 import numpy as np # linear algebra
+olderr = np.seterr(all='ignore')
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import pydicom
 import os
@@ -9,9 +10,8 @@ import matplotlib.pyplot as plt
 
 from skimage import measure, morphology
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
 # 包含所有患者目录的根目录
-INPUT_FOLDER = 'C:/Users/Sonny/Desktop/materials/Red_2/'
+INPUT_FOLDER = 'C:/Users/Sonny/Desktop/materials/Red4'
 patients = os.listdir(INPUT_FOLDER)
 patients.sort()
 
@@ -33,7 +33,7 @@ def load_scan(path):
 
     return slices
     
-    def get_pixels_hu(slices):
+def get_pixels_hu(slices):
     image = np.stack([s.pixel_array for s in slices])
     # 转换为int16，int16是ok的，因为所有的数值都应该 <32k
     image = image.astype(np.int16)
@@ -69,8 +69,9 @@ plt.show()
 def resample(image, scan, new_spacing=[1,1,1]):
     # Determine current pixel spacing
     spacing = np.array([scan[0].SliceThickness] + list(scan[0].PixelSpacing), dtype=np.float32)
-
     resize_factor = spacing / new_spacing
+    if( (spacing / new_spacing).all() ==0):
+        resize_factor=1
     new_real_shape = image.shape * resize_factor
     new_shape = np.round(new_real_shape)
     real_resize_factor = new_shape / image.shape
@@ -107,7 +108,6 @@ def plot_3d(image, threshold=-300):
 
     plt.show()
 plot_3d(pix_resampled, 400)
-
 def largest_label_volume(im, bg=-1):
     vals, counts = np.unique(im, return_counts=True)
 
